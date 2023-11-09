@@ -146,31 +146,35 @@ win_height = 500
 
 aphex = Player("aphex.jpg", 5, win_height - 180, 180, 180, 0, 0)
 
-final = GameSprite('final.jpg', 600, 400, 80, 80)
 run = True
-
-
 def komnata():
-    global w2, w1
+    # noinspection PyGlobalUndefined
+    global w2, w1, final
     num = randint(1, 3)
     if num == 1:
         w1 = GameSprite("platform2.png", win_width / 2 - win_width / 3, win_height / 4, 300, 50)
         w2 = GameSprite("platform2_v.png", 370, 100, 50, 400)
+        final = GameSprite('final.jpg', 600, 400, 80, 80)
 
 
     elif num == 2:
         w1 = GameSprite("platform2.png", 200, 66, 300, 50)
         w2 = GameSprite("platform2_v.png", 100, 100, 50, 400)
+        final = GameSprite('final.jpg', 600, 400, 80, 80)
 
     elif num == 3:
         w1 = GameSprite("platform2.png", 0, 0, 0, 0)
         w2 = GameSprite("platform2_v.png", 0, 0, 0, 0)
+        final = GameSprite('final.jpg', 600, 400, 80, 80)
 
 
 komnata()
 
-complete = sprite.collide_rect(aphex, final)
 compcount = 0
+
+count = Label(380, 0, 50, 50, back)
+count.set_text("rooms:", 45, RED)
+count.draw(20, 20)
 
 barriers = sprite.Group()
 barriers.add(w1)
@@ -213,10 +217,14 @@ while run:
     aphex.update()
     time.delay(50)
 
-    if complete == True:
+    complete = sprite.collide_rect(aphex, final)
+
+    if complete:
         window.blit(win, (300, 300))
+        final.kill()
         if compcount <= 3:
             komnata()
+
             compcount += 1
 
         else:
