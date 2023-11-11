@@ -1,4 +1,4 @@
-import time
+
 
 from pygame import *
 from random import randint
@@ -20,6 +20,8 @@ back = DARK_BLUE
 window.fill(back)
 
 
+chasi = time.Clock()
+kljglkersjgtlkdfskljgkjlsedrfjklgslkjdefg = 30
 class Area():
     def __init__(self, x=0, y=0, width=0, height=0, color=None):
         self.rect = Rect(x, y, width, height)
@@ -59,9 +61,7 @@ class GameSprite(sprite.Sprite):
     def reset(self):
         window.blit(self.image, (self.rect.x, self.rect.y))
         hit = sprite.spritecollide(aphex, monster, False)
-        if hit:
-            pic = image.load("back2.jpg")
-            picture = transform.scale(image.load("back2.jpg"), (1000, 1000))
+
 
 
 class Player(GameSprite):
@@ -72,36 +72,23 @@ class Player(GameSprite):
         self.y_speed = player_y_speed
 
     def update(self):
+        global e
         chekoty = 0
         chekotx = 0
 
         if chekotx == 0 and chekoty == 0:
 
-            platforms_touchd = sprite.spritecollide(self, barriers, False)
             self.rect.x += self.x_speed
-            if self.x_speed > 0:
-                if e.key == K_RIGHT or e.key == K_d:
-                    for p in platforms_touchd:
-                        self.x_speed = 0
-                        self.rect.right -= 12
-            elif self.x_speed < 0:
-                if e.key == K_LEFT or e.key == K_a:
-                    for p in platforms_touchd:
-                        self.x_speed = 0
-                        self.rect.left += 12
-
             self.rect.y += self.y_speed
-            if self.y_speed > 0:
-                if e.key == K_UP or e.key == K_w:
-                    for p in platforms_touchd:
-                        self.y_speed = 0
-                        self.rect.top -= 12
-            elif self.y_speed < 0:
-                if e.key == K_DOWN or e.key == K_s:
-                    for p in platforms_touchd:
-                        self.y_speed = 0
-                        self.rect.bottom -= 12
-
+            platforms_touchd = sprite.spritecollide(self, barriers, False)
+            if platforms_touchd:
+                self.rect.x -= self.x_speed
+                self.rect.y -= self.y_speed
+    def shoot(self):
+        global bullet
+        bullet = Bullet(self.rect.x + 90, self.rect.y + 90, 19, 19, self.x_speed * 1.4 or self.y_speed * 1.4)
+        all_sprites.add(bullet)
+        bullets.add(bullet)
 
 # razmer player
 
@@ -113,62 +100,100 @@ class Enemy(GameSprite):
         self.direction = 'left'
 
     def update(self):
-        if self.rect.x > 400:
-            self.direction = 'right'
-        elif self.rect.x < 300:
-            self.direction = 'left'
-        if self.direction == 'left':
+        global ax1, ax2, ay1, ay2
+        ax1 = self.speed
+        ax2 = self.speed
+        ay1 = self.speed
+        ay2 =pos
+        if self.rect.x > ax1:
             self.rect.x += self.speed
-        else:
+        elif self.rect.x < ax2:
             self.rect.x -= self.speed
+        if self.rect.y > ay1:
+            self.rect.y += self.speed
+        elif self.rect.y < ay2:
+            self.rect.y -= self.speed
+
 
 
 class Bullet(GameSprite):
-    def __init__(self, bullet_image, bullet_x, bullet_y, size_x, size_y, speed):
-        GameSprite.__init__(self, bullet_image, bullet_x, bullet_y, size_x, size_y)
+    def __init__(self, bullet_x, bullet_y, size_x, size_y, speed):
+        GameSprite.__init__(self, "bullet.jpg", bullet_x, bullet_y, size_x, size_y)
         self.speed = speed
 
     def update(self):
         self.speed = self.speed
         self.rect.x += self.speed
-        if self.rect.x > win_width + 10:
+        if self.rect.x > 1000 + 10:
             self.kill()
 
+all_sprites = sprite.Group()
 
-a = Enemy('enemy.jpg', 5, 100, 80, 80, 5)
+
 monster = sprite.Group()
 
-pew = Bullet('pew.jpg', 115, 115, 115, 115, 115)
-pewsprite = sprite.Group()
 
-win_width = 700
-win_height = 500
 
-aphex = Player("aphex.jpg", 5, win_height - 180, 180, 180, 0, 0)
+bullets = sprite.Group()
 
+aphex = Player("aphex.jpg", 5, 50, 180, 180, 0, 0)
+a = Enemy('enemy.jpg', 5, 100, 80, 80, 5)
 run = True
+
+pos = aphex.image.get_rect()
+
 def komnata():
     # noinspection PyGlobalUndefined
-    global w2, w1, final
+    global w2, w1, final, aphex, barriers, a
     num = randint(1, 3)
     if num == 1:
-        w1 = GameSprite("platform2.png", win_width / 2 - win_width / 3, win_height / 4, 300, 50)
-        w2 = GameSprite("platform2_v.png", 370, 100, 50, 400)
-        final = GameSprite('final.jpg', 600, 400, 80, 80)
-
+        global ax1, ax2,ay1,ay2
+        w1 = GameSprite("platform2.png", 253, 414, 80, 586)
+        w2 = GameSprite("platform2_v.png", 586, 0, 80, 586)
+        final = GameSprite('final.jpg', 765, 100, 80, 80)
+        aphex = Player("aphex.jpg", 25, 700, 190, 190, 0, 0)
+        a = Enemy('enemy.jpg', 5, 100, 80, 80, 5)
+        ax1 = 20
+        ax2 = 220
+        ay1 = 600
+        ay2 = 600
 
     elif num == 2:
-        w1 = GameSprite("platform2.png", 200, 66, 300, 50)
-        w2 = GameSprite("platform2_v.png", 100, 100, 50, 400)
+
+        w1 = GameSprite("platform2.png", 151, 310, 500, 80)
+        w2 = GameSprite("platform2_v.png", 151, 620, 500, 80)
         final = GameSprite('final.jpg', 600, 400, 80, 80)
+        aphex = Player("aphex.jpg", 25, 25, 190, 190, 0, 0)
+        a = Enemy('enemy.jpg', 5, 100, 80, 80, 5)
+        ax1 = 20
+        ax2 = 220
+        ay1 = 600
+        ay2 = 600
 
     elif num == 3:
-        w1 = GameSprite("platform2.png", 0, 0, 0, 0)
-        w2 = GameSprite("platform2_v.png", 0, 0, 0, 0)
+
+        w1 = GameSprite("platform2.png", 250, 250, 250, 250)
+        w2 = GameSprite("platform2_v.png", 650, 650, 250, 250)
         final = GameSprite('final.jpg', 600, 400, 80, 80)
+        aphex = Player("aphex.jpg", 25, 750, 190, 190, 0, 0)
+        a = Enemy('enemy.jpg', 5, 100, 80, 80, 5)
+        ax1 = 20
+        ax2 = 220
+        ay1 = 600
+        ay2 = 600
+
+    barriers = sprite.Group()
+    barriers.add(w1)
+    barriers.add(w2)
+    all_sprites.empty()
+
+    all_sprites.add(aphex)
+
+    all_sprites.add(a)
 
 
 komnata()
+
 
 compcount = 0
 
@@ -176,9 +201,7 @@ count = Label(380, 0, 50, 50, back)
 count.set_text("rooms:", 45, RED)
 count.draw(20, 20)
 
-barriers = sprite.Group()
-barriers.add(w1)
-barriers.add(w2)
+
 font = font.SysFont('Comic Sans MS', 40)
 win = font.render('YOU WIN', True, GREEN)
 
@@ -196,6 +219,9 @@ while run:
                 aphex.y_speed = -5
             elif e.key == K_DOWN or e.key == K_s:
                 aphex.y_speed = 5
+            if e.key == K_SPACE:
+                if aphex.x_speed > 0 or aphex.y_speed > 0 or aphex.x_speed < 0 or aphex.y_speed < 0:
+                    aphex.shoot()
 
         elif e.type == KEYUP:
             if e.key == K_LEFT or e.key == K_a:
@@ -208,22 +234,29 @@ while run:
                 aphex.y_speed = 0
     window.blit(picture, (0, 0))
 
+    if sprite.spritecollide(a, bullets, False):
+        a.kill()
+
     final.reset()
     barriers.draw(window)
     aphex.reset()
     a.reset()
 
-    a.update()
-    aphex.update()
-    time.delay(50)
+    all_sprites.update()
+
+    all_sprites.draw(window)
+
+    chasi.tick(kljglkersjgtlkdfskljgkjlsedrfjklgslkjdefg)
 
     complete = sprite.collide_rect(aphex, final)
 
     if complete:
         window.blit(win, (300, 300))
-        final.kill()
-        if compcount <= 3:
+        if compcount <= 1:
             komnata()
+            barriers.draw(window)
+
+
 
             compcount += 1
 
@@ -231,3 +264,5 @@ while run:
             run = False
 
     display.update()
+
+quit()
